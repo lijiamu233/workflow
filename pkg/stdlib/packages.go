@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	"cuelang.org/go/cue/build"
@@ -95,24 +94,14 @@ func GetPackages() (map[string]string, error) {
 func AddImportsFor(inst *build.Instance, tagTempl string) error {
 	inst.Imports = append(inst.Imports, GeneralImports...)
 	addDefault := true
-	builtinNumber := 0
 	for _, a := range inst.Imports {
 		if a.PkgName == filepath.Base(builtinPackageName) {
 			addDefault = false
 			break
 		}
-		if a.PkgName[0] == 'v' {
-			version, err := strconv.Atoi(strings.TrimPrefix(a.PkgName, "v"))
-			if err != nil {
-				continue
-			}
-			addDefault = true
-			builtinNumber = version
-			break
-		}
 	}
 	if addDefault {
-		inst.Imports = append(inst.Imports, builtinImport[builtinNumber])
+		inst.Imports = append(inst.Imports, builtinImport[0])
 	}
 	if tagTempl != "" {
 		p := &build.Instance{
